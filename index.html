@@ -1,4 +1,37 @@
-<script>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte OSM avec Leaflet</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+        #menu {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Carte des offres à Bayonne</h1>
+    <div id="map"></div>
+    <div id="menu">
+        <label for="offerType">Choisissez une catégorie d'offres :</label>
+        <select id="offerType" onchange="showOffers(this.value)">
+            <option value="">--Sélectionnez une option--</option>
+            <option value="parking">Parkings</option>
+            <option value="water_point">Points d'eau</option>
+            <option value="bicycle_parking">Parkings à vélo</option>
+            <option value="cycleway">Pistes cyclables</option>
+            <option value="tourist_office">Offices de tourisme</option>
+        </select>
+    </div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
     // Initialisation de la carte
     var map = L.map('map').setView([43.492949, -1.474841], 13);
 
@@ -65,8 +98,21 @@
         } else if (type === 'cycleway') {
             geojsonUrl = 'data/cycleways.geojson';
         } else if (type === 'tourist_office') {
-           geojsonUrl = 'data/bike_parking.geojson';
-            
+            // Requête Overpass API pour les offices de tourisme
+            var overpassUrl = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];area[name="pyrenees atlantiques"]->.searchArea;nwr"information"="office";out geom;';
+            fetch(overpassUrl)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Données récupérées : ", data);
+                    L.geoJSON(data, {
+                        pointToLayer: function (feature, latlng) {
+                            var popupText = feature.properties.name || "Office de tourisme";
+                            return L.marker(latlng, { icon: icons[type] }).bindPopup(popupText);
+                        }
+                    }).addTo(map);
+                })
+                .catch(error => console.error('Erreur lors de la récupération des données Overpass API:', error));
+            return;
         }
 
         if (geojsonUrl) {
