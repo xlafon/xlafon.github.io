@@ -32,7 +32,7 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
         // Initialisation de la carte
-        var map = L.map('map').setView([43.492949, -1.474841], 15);
+        var map = L.map('map').setView([43.492949, -1.474841], 13);
 
         // Ajout de la couche OSM
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -46,11 +46,11 @@
                 iconSize: [32, 32]
             }),
             water_point: L.icon({
-                iconUrl: 'icons/water_point2.png',
+                iconUrl: 'icons/water_point.png',
                 iconSize: [32, 32]
             }),
             bicycle_parking: L.icon({
-                iconUrl: 'icons/bicycle_parking2.png',
+                iconUrl: 'icons/bicycle_parking.png',
                 iconSize: [32, 32]
             }),
             cycleway: L.icon({
@@ -96,7 +96,15 @@
                                 pointToLayer: function (feature, latlng) {
                                     var popupText = feature.properties.name || type.charAt(0).toUpperCase() + type.slice(1);
                                     if (type === 'water_point') {
-                                        popupText = "Points d'eau";
+                                        popupText = "Point d'eau";
+                                    } else if (type === 'bicycle_parking') {
+                                        popupText = "Parking à vélo";
+                                        if (feature.properties.capacity) {
+                                            popupText += `<br>Capacité : ${feature.properties.capacity} places`;
+                                        }
+                                        if (feature.properties.bicycle_parking) {
+                                            popupText += `<br>Type : ${feature.properties.bicycle_parking}`;
+                                        }
                                     }
                                     return L.marker(latlng, { icon: icons[type] }).bindPopup(popupText);
                                 }
