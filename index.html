@@ -1,100 +1,87 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <title>Carte Interactive</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-  <style>
-    #map { width: 100%; height: 600px; }
-    #menu { margin: 20px; }
-    h3 { margin-top: 20px; }
-    select { margin-bottom: 10px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte OSM avec Leaflet</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+        #menu {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-  <div id="map"></div>
-  <div id="menu">
-    <h3>Hôtels</h3>
-    <select id="hotelMenu" onchange="showOffer('hotel', this.value)">
-      <option value="">Sélectionnez un hôtel</option>
-      <option value="0">Hôtel de la Plage</option>
-      <option value="1">Hôtel du Palais</option>
-    </select>
-    
-    <h3>Musées</h3>
-    <select id="museumMenu" onchange="showOffer('museum', this.value)">
-      <option value="">Sélectionnez un musée</option>
-      <option value="0">Musée Basque</option>
-      <option value="1">Cathédrale Sainte-Marie</option>
-    </select>
-    
-    <h3>Parkings vélos</h3>
-    <select id="bikeParkingMenu" onchange="showOffer('bikeParking', this.value)">
-      <option value="">Sélectionnez un parking vélo</option>
-      <!-- Options seront ajoutées dynamiquement -->
-    </select>
-    
-    <h3>Points d'eau</h3>
-    <select id="waterPointMenu" onchange="showOffer('waterPoint', this.value)">
-      <option value="">Sélectionnez un point d'eau</option>
-      <!-- Options seront ajoutées dynamiquement -->
-    </select>
-  </div>
+    <h1>Carte des offres à Bayonne</h1>
+    <div id="map"></div>
+    <div id="menu">
+        <label for="offerType">Choisissez une catégorie d'offres :</label>
+        <select id="offerType" onchange="showOffers(this.value)">
+            <option value="">--Sélectionnez une option--</option>
+            <option value="parking">Parkings</option>
+            <option value="water_point">Points d'eau</option>
+            <option value="bicycle_parking">Parkings à vélo</option>
+            <option value="cycleway">Pistes cyclables</option>
+        </select>
+    </div>
 
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-  <script>
-    var map = L.map('map').setView([43.4929, -1.4748], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialisation de la carte
+        var map = L.map('map').setView([43.492949, -1.474841], 13);
 
-    var offers = {
-      hotel: [
-        { name: "Hôtel de la Plage", coords: [43.4930, -1.4750] },
-        { name: "Hôtel du Palais", coords: [43.4910, -1.4730] }
-      ],
-      museum: [
-        { name: "Musée Basque", coords: [43.4927, -1.4745] },
-        { name: "Cathédrale Sainte-Marie", coords: [43.4921, -1.4751] }
-      ],
-      bikeParking: [], // Données à ajouter dynamiquement
-      waterPoint: [] // Données à ajouter dynamiquement
-    };
+        // Ajout de la couche OSM
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
-    function showOffer(category, index) {
-      if (index === "") return; // Ne rien faire si aucune option n'est sélectionnée
-      var offer = offers[category][index];
-      map.setView(offer.coords, 15);
-      L.popup()
-        .setLatLng(offer.coords)
-        .setContent(offer.name)
-        .openOn(map);
-    }
+        // Fonction pour afficher les offres
+        function showOffers(type) {
+            console.log("Type sélectionné : ", type);
 
-    // Fonction pour ajouter les données GeoJSON à la carte et au menu
-    function addGeoJsonData(category, data) {
-      data.features.forEach(function(feature, index) {
-        var coords = [feature.geometry.coordinates[1], feature.geometry.coordinates[0]];
-        var name = feature.properties.name || category + " " + (index + 1);
-        offers[category].push({ name: name, coords: coords });
+            // Suppression des anciens marqueurs
+            map.eachLayer(function (layer) {
+                if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+                    map.removeLayer(layer);
+                }
+            });
 
-        var option = document.createElement("option");
-        option.value = index;
-        option.text = name;
-        document.getElementById(category + "Menu").appendChild(option);
+            // Charger les données GeoJSON en fonction du type sélectionné
+            var geojsonUrl = '';
+            if (type === 'parking') {
+                geojsonUrl = 'parking.geojson';
+            } else if (type === 'water_point') {
+                geojsonUrl = 'water_points.geojson';
+            } else if (type === 'bicycle_parking') {
+                geojsonUrl = 'bike_parking.geojson';
+            } else if (type === 'cycleway') {
+                geojsonUrl = 'cycleways.geojson';
+            }
 
-        L.marker(coords).addTo(map)
-          .bindPopup(name);
-      });
-    }
-
-    // Exemple d'ajout de données GeoJSON pour les parkings vélos et les points d'eau
-    fetch('bike_parking.geojson')
-      .then(response => response.json())
-      .then(data => addGeoJsonData('bikeParking', data));
-
-    fetch('water_points.geojson')
-      .then(response => response.json())
-      .then(data => addGeoJsonData('waterPoint', data));
-  </script>
+            if (geojsonUrl) {
+                fetch(geojsonUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Données récupérées : ", data);
+                        if (type === 'cycleway') {
+                            L.geoJSON(data, {
+                                style: { color: 'blue' }
+                            }).addTo(map);
+                        } else {
+                            L.geoJSON(data, {
+                                pointToLayer: function (feature, latlng) {
+                                    return L.marker(latlng).bindPopup(feature.properties.name || type.charAt(0).toUpperCase() + type.slice(1));
+                                }
+                            }).addTo(map);
+                        }
+                    })
+                    .catch(error => console.error('Erreur lors de la récupération des données GeoJSON:', error));
+            }
+        }
+    </script>
 </body>
 </html>
