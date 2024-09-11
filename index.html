@@ -99,7 +99,7 @@
                 geojsonUrl = 'data/cycleways.geojson';
             } else if (type === 'tourist_office') {
                 // Requête Overpass API pour les offices de tourisme
-                var overpassUrl = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];area(id:3600007450)->.searchArea;nwr"information"="office";out geom;';
+                var overpassUrl = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];area(id:3600007450)->.searchArea;nwr["information"="office"](area.searchArea);out geom;';
                 fetch(overpassUrl)
                     .then(response => response.json())
                     .then(data => {
