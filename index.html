@@ -65,21 +65,8 @@
         } else if (type === 'cycleway') {
             geojsonUrl = 'data/cycleways.geojson';
         } else if (type === 'tourist_office') {
-            // Requête Overpass API pour les offices de tourisme
-            var overpassUrl = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];area[name="pyrenees atlantiques"]->.searchArea;nwr"information"="office";out geom;';
-            fetch(overpassUrl)
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Données récupérées : ", data);
-                    L.geoJSON(data, {
-                        pointToLayer: function (feature, latlng) {
-                            var popupText = feature.properties.name || "Office de tourisme";
-                            return L.marker(latlng, { icon: icons[type] }).bindPopup(popupText);
-                        }
-                    }).addTo(map);
-                })
-                .catch(error => console.error('Erreur lors de la récupération des données Overpass API:', error));
-            return;
+           geojsonUrl = 'data/bike_parking.geojson';
+            
         }
 
         if (geojsonUrl) {
