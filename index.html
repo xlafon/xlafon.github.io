@@ -1,29 +1,52 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Carte de Bayonne</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
-  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <title>Carte Interactive</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
+  <style>
+    #map { width: 100%; height: 600px; }
+    #menu { margin: 20px; }
+    h3 { margin-top: 20px; }
+  </style>
 </head>
 <body>
   <div id="map"></div>
-  <script>
-    // Initialisation de la carte
-    var map = L.map('map').setView([43.3047, -1.464], 13);
+  <div id="menu">
+    <h3>Hôtels</h3>
+    <button onclick="showOffer('hotel', 0)">Hôtel de la Plage</button>
+    <button onclick="showOffer('hotel', 1)">Hôtel du Palais</button>
+    
+    <h3>Musées</h3>
+    <button onclick="showOffer('museum', 0)">Musée Basque</button>
+    <button onclick="showOffer('museum', 1)">Cathédrale Sainte-Marie</button>
+  </div>
 
-    // Ajout de tuiles de fond de carte
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+  <script>
+    var map = L.map('map').setView([43.4929, -1.4748], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
     }).addTo(map);
 
-    // Exemple de requête Overpass et affichage de marqueurs
-    fetch('https://overpass-api.de/api/interpreter?data=[out:json];node["amenity"="drinking_water"](around:1000,43.3047,-1.464);out;')
-      .then(response => response.json())
-      .then(data => {
-        data.elements.forEach(element => {
-          L.marker([element.lat, element.lon]).addTo(map);
-        });
-      });
+    var offers = {
+      hotel: [
+        { name: "Hôtel de la Plage", coords: [43.4930, -1.4750] },
+        { name: "Hôtel du Palais", coords: [43.4910, -1.4730] }
+      ],
+      museum: [
+        { name: "Musée Basque", coords: [43.4927, -1.4745] },
+        { name: "Cathédrale Sainte-Marie", coords: [43.4921, -1.4751] }
+      ]
+    };
+
+    function showOffer(category, index) {
+      var offer = offers[category][index];
+      map.setView(offer.coords, 15);
+      L.popup()
+        .setLatLng(offer.coords)
+        .setContent(offer.name)
+        .openOn(map);
+    }
   </script>
 </body>
 </html>
