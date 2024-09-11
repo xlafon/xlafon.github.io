@@ -59,6 +59,18 @@
             })
         };
 
+        // Fonction de mappage pour les types de parkings à vélo
+        function mapBicycleParkingType(type) {
+            const mapping = {
+                stands: "Arceaux",
+                wall_loops: "Ratelier",
+                rack: "Ratelier",
+                shed: "Abri vélo",
+                lockers: "Abri à vélo individuels verrouillés"
+            };
+            return mapping[type] || type;
+        }
+
         // Fonction pour afficher les offres
         function showOffers(type) {
             console.log("Type sélectionné : ", type);
@@ -103,7 +115,7 @@
                                             popupText += `<br>Capacité : ${feature.properties.capacity} places`;
                                         }
                                         if (feature.properties.bicycle_parking) {
-                                            popupText += `<br>Type : ${feature.properties.bicycle_parking}`;
+                                            popupText += `<br>Type : ${mapBicycleParkingType(feature.properties.bicycle_parking)}`;
                                         }
                                     }
                                     return L.marker(latlng, { icon: icons[type] }).bindPopup(popupText);
