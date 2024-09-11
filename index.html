@@ -1,52 +1,77 @@
 <!DOCTYPE html>
-<html>
+<html lang="fr">
 <head>
-  <title>Carte Interactive</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
-  <style>
-    #map { width: 100%; height: 600px; }
-    #menu { margin: 20px; }
-    h3 { margin-top: 20px; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carte OSM avec Leaflet</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map {
+            height: 500px;
+            width: 100%;
+        }
+        #menu {
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
-  <div id="map"></div>
-  <div id="menu">
-    <h3>Hôtels</h3>
-    <button onclick="showOffer('hotel', 0)">Hôtel de la Plage</button>
-    <button onclick="showOffer('hotel', 1)">Hôtel du Palais</button>
-    
-    <h3>Musées</h3>
-    <button onclick="showOffer('museum', 0)">Musée Basque</button>
-    <button onclick="showOffer('museum', 1)">Cathédrale Sainte-Marie</button>
-  </div>
+    <h1>Carte des offres à Bayonne</h1>
+    <div id="map"></div>
+    <div id="menu">
+        <label for="offerType">Choisissez une catégorie d'offres :</label>
+        <select id="offerType" onchange="showOffers(this.value)">
+            <option value="">--Sélectionnez une option--</option>
+            <option value="restaurant">Restaurants</option>
+            <option value="hotel">Hôtels</option>
+            <option value="shop">Magasins</option>
+        </select>
+    </div>
 
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
-  <script>
-    var map = L.map('map').setView([43.4929, -1.4748], 13);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-    }).addTo(map);
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        // Initialisation de la carte
+        var map = L.map('map').setView([43.492949, -1.474841], 13);
 
-    var offers = {
-      hotel: [
-        { name: "Hôtel de la Plage", coords: [43.4930, -1.4750] },
-        { name: "Hôtel du Palais", coords: [43.4910, -1.4730] }
-      ],
-      museum: [
-        { name: "Musée Basque", coords: [43.4927, -1.4745] },
-        { name: "Cathédrale Sainte-Marie", coords: [43.4921, -1.4751] }
-      ]
-    };
+        // Ajout de la couche OSM
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
 
-    function showOffer(category, index) {
-      var offer = offers[category][index];
-      map.setView(offer.coords, 15);
-      L.popup()
-        .setLatLng(offer.coords)
-        .setContent(offer.name)
-        .openOn(map);
-    }
-  </script>
+        // Fonction pour afficher les offres
+        function showOffers(type) {
+            // Exemple de données d'offres
+            var offers = {
+                restaurant: [
+                    { name: "Restaurant A", lat: 43.493, lng: -1.475 },
+                    { name: "Restaurant B", lat: 43.494, lng: -1.476 }
+                ],
+                hotel: [
+                    { name: "Hôtel A", lat: 43.495, lng: -1.477 },
+                    { name: "Hôtel B", lat: 43.496, lng: -1.478 }
+                ],
+                shop: [
+                    { name: "Magasin A", lat: 43.497, lng: -1.479 },
+                    { name: "Magasin B", lat: 43.498, lng: -1.480 }
+                ]
+            };
+
+            // Suppression des anciens marqueurs
+            map.eachLayer(function (layer) {
+                if (layer instanceof L.Marker) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            // Ajout des nouveaux marqueurs
+            if (type) {
+                offers[type].forEach(function (offer) {
+                    L.marker([offer.lat, offer.lng]).addTo(map)
+                        .bindPopup(offer.name)
+                        .openPopup();
+                });
+            }
+        }
+    </script>
 </body>
 </html>
