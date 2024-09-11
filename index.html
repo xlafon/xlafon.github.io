@@ -22,9 +22,10 @@
         <label for="offerType">Choisissez une catégorie d'offres :</label>
         <select id="offerType" onchange="showOffers(this.value)">
             <option value="">--Sélectionnez une option--</option>
-            <option value="restaurant">Restaurants</option>
-            <option value="hotel">Hôtels</option>
-            <option value="shop">Magasins</option>
+            <option value="parking">Parkings</option>
+            <option value="water_point">Points d'eau</option>
+            <option value="bicycle_parking">Parkings à vélo</option>
+            <option value="cycleway">Pistes cyclables</option>
         </select>
     </div>
 
@@ -40,37 +41,55 @@
 
         // Fonction pour afficher les offres
         function showOffers(type) {
-            // Exemple de données d'offres
-            var offers = {
-                restaurant: [
-                    { name: "Restaurant A", lat: 43.493, lng: -1.475 },
-                    { name: "Restaurant B", lat: 43.494, lng: -1.476 }
-                ],
-                hotel: [
-                    { name: "Hôtel A", lat: 43.495, lng: -1.477 },
-                    { name: "Hôtel B", lat: 43.496, lng: -1.478 }
-                ],
-                shop: [
-                    { name: "Magasin A", lat: 43.497, lng: -1.479 },
-                    { name: "Magasin B", lat: 43.498, lng: -1.480 }
-                ]
-            };
+            console.log("Type sélectionné : ", type);
 
             // Suppression des anciens marqueurs
             map.eachLayer(function (layer) {
-                if (layer instanceof L.Marker) {
+                if (layer instanceof L.Marker || layer instanceof L.Polyline) {
                     map.removeLayer(layer);
                 }
             });
 
-            // Ajout des nouveaux marqueurs
-            if (type) {
-                offers[type].forEach(function (offer) {
-                    L.marker([offer.lat, offer.lng]).addTo(map)
-                        .bindPopup(offer.name)
-                        .openPopup();
-                });
+            // URL de la requête Overpass API corrigée
+            var overpassUrl = `https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];{{geocodeArea:Bayonne}}->.searchArea;`;
+
+            if (type === 'parking') {
+                overpassUrl += 'nwr"amenity"="parking";out body;';
+            } else if (type === 'water_point') {
+                overpassUrl += 'nwr"amenity"="drinking_water";out body;';
+            } else if (type === 'bicycle_parking') {
+                overpassUrl += 'nwr"amenity"="bicycle_parking";out body;';
+            } else if (type === 'cycleway') {
+                overpassUrl += 'way"highway"="cycleway";out body;>;out skel qt;';
             }
+
+            console.log("URL de la requête Overpass : ", overpassUrl);
+
+            // Récupération des données OSM
+            fetch(overpassUrl)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Données récupérées : ", data);
+                    if (type === 'cycleway') {
+                        data.elements.forEach(element => {
+                            if (element.type === 'way') {
+                                var latlngs = element.geometry.map(coord => [coord.lat, coord.lon]);
+                                L.polyline(latlngs, { color: 'blue' }).addTo(map);
+                            }
+                        });
+                    } else {
+                        data.elements.forEach(element => {
+                            L.marker([element.lat, element.lon]).addTo(map)
+                                .bindPopup(type.charAt(0).toUpperCase() + type.slice(1));
+                        });
+                    }
+                })
+                .catch(error => console.error('Erreur lors de la récupération des données OSM:', error));
         }
     </script>
 </body>
