@@ -32,119 +32,121 @@
 
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script>
-    // Initialisation de la carte
-    var map = L.map('map').setView([43.492949, -1.474841], 13);
+        // Initialisation de la carte
+        var map = L.map('map').setView([43.492949, -1.474841], 13);
 
-    // Ajout de la couche CyclOSM
-    L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
-        attribution: '© <a href="https://www.cyclosm.org">CyclOSM</a>'
-    }).addTo(map);
+        // Ajout de la couche CyclOSM
+        L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.cyclosm.org">CyclOSM</a>'
+        }).addTo(map);
 
-    // Définir les icônes personnalisées
-    var icons = {
-        parking: L.icon({
-            iconUrl: 'icons/parking.png',
-            iconSize: [32, 32]
-        }),
-        water_point: L.icon({
-            iconUrl: 'icons/water_point.png',
-            iconSize: [32, 32]
-        }),
-        bicycle_parking: L.icon({
-            iconUrl: 'icons/bicycle_parking.png',
-            iconSize: [32, 32]
-        }),
-        cycleway: L.icon({
-            iconUrl: 'icons/cycleway.png',
-            iconSize: [32, 32]
-        }),
-        tourist_office: L.icon({
-            iconUrl: 'icons/tourist_office.png',
-            iconSize: [32, 32]
-        })
-    };
-
-    // Fonction de mappage pour les types de parkings à vélo
-    function mapBicycleParkingType(type) {
-        const mapping = {
-            stands: "Arceaux",
-            wall_loops: "Ratelier",
-            rack: "Ratelier",
-            shed: "Abri vélo",
-            lockers: "Abri à vélo individuels verrouillés"
+        // Définir les icônes personnalisées
+        var icons = {
+            parking: L.icon({
+                iconUrl: 'icons/parking.png',
+                iconSize: [32, 32]
+            }),
+            water_point: L.icon({
+                iconUrl: 'icons/water_point.png',
+                iconSize: [32, 32]
+            }),
+            bicycle_parking: L.icon({
+                iconUrl: 'icons/bicycle_parking.png',
+                iconSize: [32, 32]
+            }),
+            cycleway: L.icon({
+                iconUrl: 'icons/cycleway.png',
+                iconSize: [32, 32]
+            }),
+            tourist_office: L.icon({
+                iconUrl: 'icons/tourist_office.png',
+                iconSize: [32, 32]
+            })
         };
-        return mapping[type] || type;
-    }
 
-    // Fonction pour afficher les offres
-    function showOffers(type) {
-        console.log("Type sélectionné : ", type);
-
-        // Suppression des anciens marqueurs
-        map.eachLayer(function (layer) {
-            if (layer instanceof L.Marker || layer instanceof L.Polyline) {
-                map.removeLayer(layer);
-            }
-        });
-
-        // Charger les données GeoJSON en fonction du type sélectionné
-        var geojsonUrl = '';
-        if (type === 'parking') {
-            geojsonUrl = 'data/parking.geojson';
-        } else if (type === 'water_point') {
-            geojsonUrl = 'data/water_points.geojson';
-        } else if (type === 'bicycle_parking') {
-            geojsonUrl = 'data/bike_parking.geojson';
-        } else if (type === 'cycleway') {
-            geojsonUrl = 'data/cycleways.geojson';
-        } else if (type === 'tourist_office') {
-            // Requête Overpass API pour les offices de tourisme
-            var overpassUrl = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];area[name="pyrenees atlantiques"]->.searchArea;nwr"information"="office";out geom;';
-            fetch(overpassUrl)
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Données récupérées : ", data);
-                    L.geoJSON(data, {
-                        pointToLayer: function (feature, latlng) {
-                            var popupText = feature.properties.name || "Office de tourisme";
-                            return L.marker(latlng, { icon: icons[type] }).bindPopup(popupText);
-                        }
-                    }).addTo(map);
-                })
-                .catch(error => console.error('Erreur lors de la récupération des données Overpass API:', error));
-            return;
+        // Fonction de mappage pour les types de parkings à vélo
+        function mapBicycleParkingType(type) {
+            const mapping = {
+                stands: "Arceaux",
+                wall_loops: "Ratelier",
+                rack: "Ratelier",
+                shed: "Abri vélo",
+                lockers: "Abri à vélo individuels verrouillés"
+            };
+            return mapping[type] || type;
         }
 
-        if (geojsonUrl) {
-            fetch(geojsonUrl)
-                .then(response => response.json())
-                .then(data => {
-                    console.log("Données récupérées : ", data);
-                    if (type === 'cycleway') {
-                        L.geoJSON(data, {
-                            style: { color: 'blue' }
-                        }).addTo(map);
-                    } else {
+        // Fonction pour afficher les offres
+        function showOffers(type) {
+            console.log("Type sélectionné : ", type);
+
+            // Suppression des anciens marqueurs
+            map.eachLayer(function (layer) {
+                if (layer instanceof L.Marker || layer instanceof L.Polyline) {
+                    map.removeLayer(layer);
+                }
+            });
+
+            // Charger les données GeoJSON en fonction du type sélectionné
+            var geojsonUrl = '';
+            if (type === 'parking') {
+                geojsonUrl = 'data/parking.geojson';
+            } else if (type === 'water_point') {
+                geojsonUrl = 'data/water_points.geojson';
+            } else if (type === 'bicycle_parking') {
+                geojsonUrl = 'data/bike_parking.geojson';
+            } else if (type === 'cycleway') {
+                geojsonUrl = 'data/cycleways.geojson';
+            } else if (type === 'tourist_office') {
+                // Requête Overpass API pour les offices de tourisme
+                var overpassUrl = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];area[name="pyrenees atlantiques"]->.searchArea;nwr"information"="office";out body geom;';
+                fetch(overpassUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Données récupérées : ", data);
                         L.geoJSON(data, {
                             pointToLayer: function (feature, latlng) {
-                                var popupText = feature.properties.name || type.charAt(0).toUpperCase() + type.slice(1);
-                                if (type === 'water_point') {
-                                    popupText = "Point d'eau";
-                                } else if (type === 'bicycle_parking') {
-                                    popupText = "Parking à vélo";
-                                    if (feature.properties.capacity) {
-                                        popupText += `<br>Capacité : ${feature.properties.capacity} places`;
-                                    }
-                                    if (feature.properties.bicycle_parking) {
-                                        popupText += `<br>Type : ${mapBicycleParkingType(feature.properties.bicycle_parking)}`;
-                                    }
-                                }
+                                var popupText = feature.properties.name || "Office de tourisme";
                                 return L.marker(latlng, { icon: icons[type] }).bindPopup(popupText);
                             }
                         }).addTo(map);
-                    }
-                })
-                .catch(error => console.error('Erreur lors de la récupération des données GeoJSON:', error));
+                    })
+                    .catch(error => console.error('Erreur lors de la récupération des données Overpass API:', error));
+                return;
+            }
+
+            if (geojsonUrl) {
+                fetch(geojsonUrl)
+                    .then(response => response.json())
+                    .then(data => {
+                        console.log("Données récupérées : ", data);
+                        if (type === 'cycleway') {
+                            L.geoJSON(data, {
+                                style: { color: 'blue' }
+                            }).addTo(map);
+                        } else {
+                            L.geoJSON(data, {
+                                pointToLayer: function (feature, latlng) {
+                                    var popupText = feature.properties.name || type.charAt(0).toUpperCase() + type.slice(1);
+                                    if (type === 'water_point') {
+                                        popupText = "Point d'eau";
+                                    } else if (type === 'bicycle_parking') {
+                                        popupText = "Parking à vélo";
+                                        if (feature.properties.capacity) {
+                                            popupText += `<br>Capacité : ${feature.properties.capacity} places`;
+                                        }
+                                        if (feature.properties.bicycle_parking) {
+                                            popupText += `<br>Type : ${mapBicycleParkingType(feature.properties.bicycle_parking)}`;
+                                        }
+                                    }
+                                    return L.marker(latlng, { icon: icons[type] }).bindPopup(popupText);
+                                }
+                            }).addTo(map);
+                        }
+                    })
+                    .catch(error => console.error('Erreur lors de la récupération des données GeoJSON:', error));
+            }
         }
-    }
-</script>
+    </script>
+</body>
+</html>
