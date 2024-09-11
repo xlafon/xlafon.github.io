@@ -34,9 +34,9 @@
         // Initialisation de la carte
         var map = L.map('map').setView([43.492949, -1.474841], 13);
 
-        // Ajout de la couche OSM
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        // Ajout de la couche GeoVelo
+        L.tileLayer('https://tile.geovelo.fr/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.geovelo.fr">GeoVelo</a>'
         }).addTo(map);
 
         // Définir les icônes personnalisées
