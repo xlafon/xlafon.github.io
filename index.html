@@ -34,9 +34,9 @@
         // Initialisation de la carte
         var map = L.map('map').setView([43.492949, -1.474841], 13);
 
-        // Ajout de la couche GeoVelo
-        L.tileLayer('https://tile.geovelo.fr/{z}/{x}/{y}.png', {
-            attribution: '© <a href="https://www.geovelo.fr">GeoVelo</a>'
+        // Ajout de la couche CyclOSM
+        L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.cyclosm.org">CyclOSM</a>'
         }).addTo(map);
 
         // Définir les icônes personnalisées
