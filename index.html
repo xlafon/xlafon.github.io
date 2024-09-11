@@ -88,11 +88,11 @@
     }
 
     // Exemple d'ajout de données GeoJSON pour les parkings vélos et les points d'eau
-    fetch('path/to/bike_parking.geojson')
+    fetch('data/bike_parking.geojson')
       .then(response => response.json())
       .then(data => addGeoJsonData('bikeParking', data));
 
-    fetch('path/to/water_points.geojson')
+    fetch('data/water_points.geojson')
       .then(response => response.json())
       .then(data => addGeoJsonData('waterPoint', data));
   </script>
