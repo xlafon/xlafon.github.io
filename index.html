@@ -96,7 +96,7 @@
                                 pointToLayer: function (feature, latlng) {
                                     var popupText = feature.properties.name || type.charAt(0).toUpperCase() + type.slice(1);
                                     if (type === 'water_point') {
-                                        popupText = "Point d'eau";
+                                        popupText = "Points d'eau";
                                     }
                                     return L.marker(latlng, { icon: icons[type] }).bindPopup(popupText);
                                 }
