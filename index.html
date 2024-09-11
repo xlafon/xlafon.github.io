@@ -2,10 +2,28 @@
 <html>
 <head>
   <title>Carte de Bayonne</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
 </head>
 <body>
   <div id="map"></div>
-  <script src="js/map.js"></script>
+  <script>
+    // Initialisation de la carte
+    var map = L.map('map').setView([43.3047, -1.464], 13);
+
+    // Ajout de tuiles de fond de carte
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(map);
+
+    // Exemple de requête Overpass et affichage de marqueurs
+    fetch('https://overpass-api.de/api/interpreter?data=[out:json];node["amenity"="drinking_water"](around:1000,43.3047,-1.464);out;')
+      .then(response => response.json())
+      .then(data => {
+        data.elements.forEach(element => {
+          L.marker([element.lat, element.lon]).addTo(map);
+        });
+      });
+  </script>
 </body>
 </html>
