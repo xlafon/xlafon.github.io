@@ -39,6 +39,26 @@
             attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         }).addTo(map);
 
+        // Définir les icônes personnalisées
+        var icons = {
+            parking: L.icon({
+                iconUrl: 'icons/parking.png',
+                iconSize: [32, 32]
+            }),
+            water_point: L.icon({
+                iconUrl: 'water_point.png',
+                iconSize: [32, 32]
+            }),
+            bicycle_parking: L.icon({
+                iconUrl: 'bicycle_parking.png',
+                iconSize: [32, 32]
+            }),
+            cycleway: L.icon({
+                iconUrl: 'icons/cycleway.png',
+                iconSize: [32, 32]
+            })
+        };
+
         // Fonction pour afficher les offres
         function showOffers(type) {
             console.log("Type sélectionné : ", type);
@@ -59,7 +79,7 @@
             } else if (type === 'bicycle_parking') {
                 geojsonUrl = 'bike_parking.geojson';
             } else if (type === 'cycleway') {
-                geojsonUrl = 'cycleways.geojson';
+                geojsonUrl = 'data/cycleways.geojson';
             }
 
             if (geojsonUrl) {
@@ -74,7 +94,11 @@
                         } else {
                             L.geoJSON(data, {
                                 pointToLayer: function (feature, latlng) {
-                                    return L.marker(latlng).bindPopup(feature.properties.name || type.charAt(0).toUpperCase() + type.slice(1));
+                                    var popupText = feature.properties.name || type.charAt(0).toUpperCase() + type.slice(1);
+                                    if (type === 'water_point') {
+                                        popupText = "Point d'eau";
+                                    }
+                                    return L.marker(latlng, { icon: icons[type] }).bindPopup(popupText);
                                 }
                             }).addTo(map);
                         }
