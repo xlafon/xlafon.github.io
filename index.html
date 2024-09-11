@@ -35,9 +35,9 @@
         // Initialisation de la carte
         var map = L.map('map').setView([43.492949, -1.474841], 13);
 
-        // Ajout de la couche OSM
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        // Ajout de la couche CyclOSM
+        L.tileLayer('https://{s}.tile-cyclosm.openstreetmap.fr/cyclosm/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.cyclosm.org">CyclOSM</a>'
         }).addTo(map);
 
         // Définir les icônes personnalisées
@@ -99,8 +99,7 @@
                 geojsonUrl = 'data/cycleways.geojson';
             } else if (type === 'tourist_office') {
                 // Requête Overpass API pour les offices de tourisme
-                var overpassQuery = '[out:json][timeout:25];area(id:3600007450)->.searchArea;nwr["information"="office"](area.searchArea);out geom;';
-                var overpassUrl = 'https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(overpassQuery);
+                var overpassUrl = 'https://overpass-api.de/api/interpreter?data=[out:json][timeout:25];area(id:3600007450)->.searchArea;nwr"information"="office";out geom;';
                 fetch(overpassUrl)
                     .then(response => response.json())
                     .then(data => {
