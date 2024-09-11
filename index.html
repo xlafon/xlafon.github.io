@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Carte Interactive</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+    <style>
+        #map { height: 600px; }
+    </style>
+</head>
+<body>
+    <h1>Carte Interactive avec Données OSM</h1>
+    <select id="dataSelector">
+        <option value="restaurants">Restaurants</option>
+        <option value="parks">Parcs</option>
+        <option value="museums">Musées</option>
+    </select>
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script>
+        var map = L.map('map').setView([48.8566, 2.3522], 13);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+
+        document.getElementById('dataSelector').addEventListener('change', function(e) {
+            var selectedValue = e.target.value;
+            loadData(selectedValue);
+        });
+
+        function loadData(type) {
+            var query;
+            if (type === 'restaurants') {
+                query = '[out:json];node"amenity"="restaurant";out body;';
+            } else if (type === 'parks') {
+                query = '[out:json];node"leisure"="park";out body;';
+            } else if (type === 'museums') {
+                query = '[out:json];node"tourism"="museum";out body;';
+            }
+
+            fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query))
+                .then(response => response.json())
+                .then(data => {
+                    map.eachLayer(function (layer) {
+                        if (layer instanceof L.Marker) {
+                            map.removeLayer(layer);
+                        }
+                    });
+
+                    data.elements.forEach(function(item) {
+                        L.marker([item.lat, item.lon]).addTo(map)
+                            .bindPopup(item.tags.name || 'No name');
+                    });
+                });
+        }
+    </script>
+</body>
+</html>
